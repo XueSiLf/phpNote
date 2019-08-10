@@ -211,7 +211,7 @@ apache_request_headers() - 获取全部HTTP请求头信息
 
 ### 【留心：返回值的格式，参数中数字前缀参数，分隔符号参数，加密类型】
 
-用法示例：
+### 用法示例：
 
 ~~~php
 http_build_query( 数组$arr ) : string // 返回采用&分隔字符串 键=值&键=值
@@ -220,7 +220,7 @@ http_build_query( 数组$arr, 数字前缀, 分隔符)
 http_build_query( 对象$obj, )
 ~~~
 
-示例1：http_build_query() 使用分隔符
+#### 示例1：http_build_query() 使用分隔符
 
 ~~~php
 <?php
@@ -238,7 +238,95 @@ foo=bar&baz=boom&cow=milk&php=hypertext+processor
 // 空格变成加号
 ~~~
 
-示例2：
+#### 示例2：http_build_query() 使用数字下标的元素 使用前缀（只针对索引数组）
+
+~~~php
+<?php
+    $data = array('foo', 'bar', 'baz', 'boom', 'cow' => 'milk', 'php' =>'hypertext processor');
+    echo http_build_query($data) . "\n";
+    echo http_build_query($data, 'myvar_');
+// 结果：
+0=foo&1=bar&2=baz&3=boom&cow=milk&php=hypertext+processor
+myvar_0=foo&myvar_1=bar&myvar_2=baz&myvar_3=boom&cow=milk&php=hypertext+processor
+~~~
+
+#### 示例3：http_build_query() 使用复杂的数组
+
+~~~php
+<?php
+$data = array(
+    'user' => array(
+        'name' => 'Bob Smith',
+        'age' => 47,
+        'sex' => 'M',
+        'dob' => '5/12/1956'
+    ),
+    'pastimes' => array('golf', 'opera', 'poker', 'rap'),
+    'children' => array(
+        'bobby' => array('age' => 12, 'sex' => 'M'),
+        'sally' => array('age' => 8, 'sex' => 'F') 
+    ),
+    'CEO'
+);
+echo http_build_query($data, 'flag_');
+// 结果：
+user%5Bname%5D=Bob+Smith&user%5Bage%5D=47&user%5Bsex%5D=M&user%5Bdob%5D=5%2F12%2F1956&pastimes%5B0%5D=golf&pastimes%5B1%5D=opera&pastimes%5B2%5D=poker&pastimes%5B3%5D=rap&children%5Bbobby%5D%5Bage%5D=12&children%5Bbobby%5D%5Bsex%5D=M&children%5Bsally%5D%5Bage%5D=8&children%5Bsally%5D%5Bsex%5D=F&flag_0=CEO
+~~~
+
+##### 【留心：只有基础数组中的数字下标元素获取了前缀】
+
+下标元素“CEO”才获取了前缀，其它数字下标元素（如 pastimes 下的元素）则不需要为了合法的变量名而加上前缀。
+
+#### 示例4：http_build_query() 使用对象
+
+~~~php
+<?php
+class parentClass {
+    public    $pub      = 'publicParent';
+    protected $prot     = 'protectedParent';
+    private   $priv     = 'privateParent';
+    public    $pub_bar  = Null;
+    protected $prot_bar = Null;
+    private   $priv_bar = Null;
+
+    public function __construct(){
+        $this->pub_bar  = new childClass();
+        $this->prot_bar = new childClass();
+        $this->priv_bar = new childClass();
+    }
+}
+
+class childClass {
+    public    $pub  = 'publicChild';
+    protected $prot = 'protectedChild';
+    private   $priv = 'privateChild';
+}
+
+$parent = new parentClass();
+echo http_build_query($parent);
+// 结果：只有公有属性打印出来了
+pub=publicParent&pub_bar%5Bpub%5D=publicChild
+~~~
+
+
+
+### 【关键：常常配合 parse_str 使用】
+
+### 【参考：】
+
+parse_str( $str, $output ) - 将字符串解析成多个变量
+
+parse_url( $url ) - 解析URL，返回其组成部分
+
+urlencode( $url ) - 编码URL字符串
+
+array_walk() - 使用用户自定义函数对数组中的每个元素做回调处理
+
+
+
+
+
+
 
 
 
